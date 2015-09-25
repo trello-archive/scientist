@@ -1,0 +1,5 @@
+--reporter dot
+--compilers coffee:coffee-script/register
+--recursive
+--require should
+--require should-sinon

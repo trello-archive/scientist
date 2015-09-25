@@ -1,0 +1,40 @@
+{
+  "name": "scientist",
+  "version": "0.0.0",
+  "author": "Trello Inc.",
+  "description": "Carefully refactor critical paths in production",
+  "keywords": [
+    "science",
+    "experiment"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trello/scientist.git"
+  },
+  "bugs": {
+    "url": "https://github.com/trello/scientist/issues"
+  },
+  "homepage": "https://github.com/trello/scientist#readme",
+  "main": "index.js",
+  "files": [
+    "lib",
+    "index.js"
+  ],
+  "dependencies": {
+    "bluebird": "^3.1.1",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.10.0",
+    "mocha": "^2.3.4",
+    "should": "^8.0.2",
+    "should-sinon": "0.0.3",
+    "sinon": "^1.17.2"
+  },
+  "scripts": {
+    "build-npm": "rm -rf ./lib/ && coffee -b -c -o ./lib/ --no-header src/",
+    "prepublish": "npm run build-npm",
+    "test": "mocha"
+  }
+}
