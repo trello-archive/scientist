@@ -230,6 +230,13 @@ describe "Observation", ->
         value: { a: 1, b: 'c' }
       """
 
+    it "takes an optional stringifier to use", ->
+      observation = new Observation(@name, @returning({ a: 1, b: "c" }), @options)
+
+      observation.inspect(JSON.stringify).should.equal """
+        value: {"a":1,"b":"c"}
+      """
+
     it "cleans the value using the experiment", ->
       @options.cleaner = (value) -> _.keys(value)
       observation = new Observation(@name, @returning({ a: 0, b: "c" }), @options)

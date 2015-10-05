@@ -1,10 +1,10 @@
 _ = require('underscore')
 Promise = require('bluebird')
 
-# Stringification is done with node's inspect with infinite recursion, but it
+# Stringification is done with node's inspect with default recursion, and it
 # is also smart enough to handle cyclical references, which JSON.stringify
 # won't do.
-inspect = _.partial(require('util').inspect, _, depth: null)
+inspect = require('util').inspect
 
 class Observation
   constructor: (name, block, options={}) ->
@@ -84,10 +84,10 @@ class Observation
 
   # Returns a string for logging purposes. Uses the defined cleaner for
   # returned values.
-  inspect: ->
+  inspect: (stringify = inspect) ->
     if @didReturn()
-      "value: #{ inspect(@_options.cleaner(@value)) }"
+      "value: #{ stringify(@_options.cleaner(@value)) }"
     else
-      "error: [#{ @error.constructor?.name }] #{ inspect(@error.message) }"
+      "error: [#{ @error.constructor?.name }] #{ stringify(@error.message) }"
 
 module.exports = Observation
