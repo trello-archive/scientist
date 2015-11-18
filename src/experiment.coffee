@@ -80,7 +80,7 @@ class Experiment extends EventEmitter
   # in user-defined functions via the error event.
   _sendResults: (observations) ->
     mapped = @_try "Map", =>
-      _.invoke(observations, 'map', @_options.mapper)
+      _.invoke(observations, 'map', @_mapper.bind(@))
 
     return unless mapped
 
@@ -120,6 +120,17 @@ class Experiment extends EventEmitter
       observation.settle()
     else
       observation
+
+  # Wraps the options mapper to force the value to be a promise both before and
+  # after the mapping if async is toggled on
+  _mapper: (val) ->
+    if @_options.async
+      result = @_options.mapper(Promise.resolve(val))
+      if !_.isFunction(result?.then)
+        throw Error("Result of async mapping must be a thenable, got #{ result }")
+      return result
+    else
+      @_options.mapper(val)
 
   # Mutate the error by prepending the message with a prefix and adding some
   # contextual information. This is done so that the stack trace is left

@@ -267,3 +267,36 @@ describe "Experiment", ->
       cleaner = (->)
       @experiment.clean(cleaner)
       @experiment._options.cleaner.should.equal(cleaner)
+
+  describe "mapping", ->
+    beforeEach ->
+      @result = Promise.race [
+        eventToPromise(@experiment, 'result')
+        eventToPromise(@experiment, 'error').spread (err) -> throw err
+      ]
+      return
+
+    it "always provides a promise argument if async is set to true", ->
+      @experiment.async(true)
+      @experiment.use -> 1
+      @experiment.try -> 2
+      mapper = sinon.spy (val) ->
+        val.should.be.instanceOf(Promise)
+        return val
+      @experiment.map(mapper)
+
+      @experiment.run(@true)
+
+      @result.should.be.fulfilled()
+      .then -> mapper.should.be.calledTwice()
+
+    it "always expects a promise return value if async is set to true", ->
+      @experiment.async(true)
+      @experiment.use -> Promise.resolve({ a: 1 })
+      @experiment.try -> Promise.resolve({ a: 2 })
+      # A common mistake: val is a promise, not a value
+      @experiment.map (val) -> val.a
+
+      @experiment.run(@true)
+
+      @result.should.be.rejectedWith(/Result of async mapping must be a thenable/)
