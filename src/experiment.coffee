@@ -19,6 +19,7 @@ class Experiment extends EventEmitter
     @_options =
       context: {}
       async: false
+      skipper: _.constant(false)
       mapper: _.identity
       ignorers: []
       comparator: _.isEqual
@@ -46,15 +47,23 @@ class Experiment extends EventEmitter
     if 'control' !of @_behaviors
       throw Error("Expected control behavior to be defined")
 
-    # Experiments will not be run if either you did not define more than the
-    # control or if the sampler function did not return true.
-    shouldRun = @_try "Sampler", =>
-      _.size(@_behaviors) > 1 && sampler(@name)
+    # Experiments will not be run if any of the following are true:
+    # 1. You did not define more than the control
+    hasNoBehaviors = _.size(@_behaviors) < 2
+    # 2. The sampler function did not return truthy
+    shouldNotSample = @_try "Sampler", => !sampler(@name)
+    # 3. The skipper function did return truthy
+    shouldSkip = @_try "Skipper", => @_options.skipper()
+
+    skipReason = switch
+      when hasNoBehaviors then "No behaviors defined"
+      when shouldNotSample then "Sampler returned false"
+      when shouldSkip then "Skipper returned true"
 
     # In the case of a skipped experiment, just evaluate the control.
-    if !shouldRun
+    if skipReason
       @_try "Skip handler", =>
-        @emit('skip', @)
+        @emit('skip', @, skipReason)
       return @_behaviors.control()
 
     # Otherwise, shuffle the order and execute each one at a time.
@@ -100,6 +109,8 @@ class Experiment extends EventEmitter
   context: (context) -> _.extend(@_options.context, context)
   # Set the async flag (default: false)
   async: expects 'boolean', (async) -> @_options.async = async
+  # Sets the skipper function (default: const false)
+  skipWhen: expects 'function', (skipper) -> @_options.skipper = skipper
   # Set the mapper function (default: identity function)
   map: expects 'function', (mapper) -> @_options.mapper = mapper
   # Adds an ignorer function (default: none)

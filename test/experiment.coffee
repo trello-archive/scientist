@@ -103,22 +103,32 @@ describe "Experiment", ->
       (=> @experiment.run(@true)).should.throw(error)
 
   describe "event: skip", ->
-    it "is emitted if the sampler returns false", ->
-      capture = eventToPromise(@experiment, 'skip')
-      @experiment.use -> return 1
-      @experiment.try -> return 1
-
-      @experiment.run(@false)
-
-      capture.should.eventually.eql([@experiment])
-
     it "is emitted if there are no candidates defined", ->
       capture = eventToPromise(@experiment, 'skip')
       @experiment.use -> return 1
 
       @experiment.run(@true)
 
-      capture.should.eventually.eql([@experiment])
+      capture.should.eventually.eql([@experiment, "No behaviors defined"])
+
+    it "is emitted if the sampler returns falsy", ->
+      capture = eventToPromise(@experiment, 'skip')
+      @experiment.use -> return 1
+      @experiment.try -> return 1
+
+      @experiment.run(@false)
+
+      capture.should.eventually.eql([@experiment, "Sampler returned false"])
+
+    it "is emitted if the skipper returns truthy", ->
+      capture = eventToPromise(@experiment, 'skip')
+      @experiment.use -> return 1
+      @experiment.try -> return 1
+      @experiment.skipWhen -> true
+
+      @experiment.run(@true)
+
+      capture.should.eventually.eql([@experiment, "Skipper returned true"])
 
   describe "event: result", ->
     it "is emitted with a result after a successful run", ->
@@ -174,6 +184,16 @@ describe "Experiment", ->
 
       capture.spread (error) =>
         error.message.should.match(/^Sampler failed: forced/)
+        error.experiment.should.equal(@experiment)
+
+    it "is emitted if the skipper fails", ->
+      capture = eventToPromise(@experiment, 'error')
+
+      @experiment.skipWhen -> throw Error("forced")
+      @experiment.run(@true)
+
+      capture.spread (error) =>
+        error.message.should.match(/^Skipper failed: forced/)
         error.experiment.should.equal(@experiment)
 
     it "is emitted if the skip event handler fails", ->
@@ -240,6 +260,15 @@ describe "Experiment", ->
     it "sets the internal async flag", ->
       @experiment.async(true)
       @experiment._options.async.should.be.true()
+
+  describe "::skipWhen()", ->
+    it "requires a function", ->
+      (=> @experiment.skipWhen(1)).should.throw(/Expected function, got 1/)
+
+    it "sets the internal skipper function", ->
+      skipper = (->)
+      @experiment.skipWhen(skipper)
+      @experiment._options.skipper.should.equal(skipper)
 
   describe "::map()", ->
     it "requires a function", ->
