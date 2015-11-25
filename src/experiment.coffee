@@ -20,6 +20,7 @@ class Experiment extends EventEmitter
       context: {}
       async: false
       mapper: _.identity
+      ignorers: []
       comparator: _.isEqual
       cleaner: _.identity
 
@@ -101,6 +102,8 @@ class Experiment extends EventEmitter
   async: expects 'boolean', (async) -> @_options.async = async
   # Set the mapper function (default: identity function)
   map: expects 'function', (mapper) -> @_options.mapper = mapper
+  # Adds an ignorer function (default: none)
+  ignore: expects 'function', (ignorer) -> @_options.ignorers.push(ignorer)
   # Set the comparator function (default: deep equality)
   compare: expects 'function', (comparator) -> @_options.comparator = comparator
   # Set the cleaner function (default: identity function)

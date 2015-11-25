@@ -59,6 +59,18 @@ class Observation
   # True if the block returned; false if it threw
   didReturn: -> !@error?
 
+  # Returns true if the other observation is allowed to be compared to this
+  # one using the ignorer options as a set of filters. If any return true, the
+  # comparison is aborted.
+  ignores: (other) ->
+    if other !instanceof Observation
+      return false
+
+    if _.isEmpty(@_options.ignorers)
+      return false
+
+    _.any(@_options.ignorers, (predicate) => predicate(@, other))
+
   # Returns true if the other observation matches this one. In order for
   # observations to match, they most have both thrown or returned, and the
   # values or errors should match based on supplied or built-in criteria.

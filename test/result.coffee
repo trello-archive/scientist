@@ -1,4 +1,5 @@
 Promise = require('bluebird')
+sinon = require('sinon')
 
 Experiment = require('../src/experiment')
 Observation = require('../src/observation')
@@ -26,12 +27,31 @@ describe "Lib: Scientist: Result", ->
         control: @control
         candidates: @candidates
 
-    it "exposes a matched array of observations", ->
+    it "exposes an array of ignored observations", ->
+      @experiment.ignore (control, candidate) ->
+        candidate.value == 2
+      result = new Result(@experiment, @control, @candidates)
+
+      result.should.have.property('ignored').eql [@candidates[1]]
+
+    it "exposes an array of matched observations", ->
       result = new Result(@experiment, @control, @candidates)
 
       result.should.have.property('matched').eql [@candidates[0]]
 
-    it "exposes a mismatched array of observations", ->
+    it "exposes an array of mismatched observations", ->
       result = new Result(@experiment, @control, @candidates)
 
       result.should.have.property('mismatched').eql @candidates[1..2]
+
+    it "removes ignored observations from matched and mismatched", ->
+      spy = sinon.spy()
+      @experiment.ignore -> true
+      @experiment.compare(spy)
+
+      result = new Result(@experiment, @control, @candidates)
+
+      result.should.have.property('ignored').eql @candidates
+      result.should.have.property('matched').eql []
+      result.should.have.property('mismatched').eql []
+      spy.should.not.be.called()

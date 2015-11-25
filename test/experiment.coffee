@@ -250,6 +250,16 @@ describe "Experiment", ->
       @experiment.map(mapper)
       @experiment._options.mapper.should.equal(mapper)
 
+  describe "::ignore()", ->
+    it "requires a function", ->
+      (=> @experiment.ignore(1)).should.throw(/Expected function, got 1/)
+
+    it "adds an internal ignorer function", ->
+      ignorer = (->)
+      @experiment.ignore(ignorer)
+      @experiment.ignore(ignorer)
+      @experiment._options.ignorers.should.eql([ignorer, ignorer])
+
   describe "::compare()", ->
     it "requires a function", ->
       (=> @experiment.compare(1)).should.throw(/Expected function, got 1/)

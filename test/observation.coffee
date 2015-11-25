@@ -12,6 +12,7 @@ describe "Observation", ->
     @name = "test"
     @options =
       mapper: _.identity
+      ignorers: []
       comparator: _.isEqual
       cleaner: _.identity
 
@@ -173,6 +174,38 @@ describe "Observation", ->
     it "returns false if the block threw", ->
       observation = new Observation(@name, @throw)
       observation.didReturn().should.be.false()
+
+  describe "::ignores()", ->
+    it "returns false for non-observations", ->
+      a = new Observation(@name, @return, @options)
+
+      a.ignores({ @value }).should.be.false()
+
+    it "returns false if there are no ignorers", ->
+      a = new Observation(@name, @return, @options)
+      b = new Observation(@name, @return, @options)
+
+      a.ignores(b).should.be.false()
+
+    it "returns true if any ignorer predicates return true", ->
+      a = new Observation(@name, @return, @options)
+      b = new Observation(@name, @return, @options)
+
+      @options.ignorers.push(_.constant(false), _.constant(false))
+      a.ignores(b).should.be.false()
+
+      @options.ignorers.push(_.constant(true))
+      a.ignores(b).should.be.true()
+
+    it "passes the two observations to each ignorer", ->
+      spy = sinon.spy()
+      a = new Observation(@name, @return, @options)
+      b = new Observation(@name, @return, @options)
+
+      @options.ignorers.push(spy)
+      a.ignores(b)
+
+      spy.should.be.calledWith(a, b)
 
   describe "::matches()", ->
     it "returns false for non-observations", ->
