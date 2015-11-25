@@ -1,6 +1,7 @@
 _ = require('underscore')
 Promise = require('bluebird')
 sinon = require('sinon')
+inspect = require('util').inspect
 
 Observation = require('../src/observation')
 
@@ -230,11 +231,11 @@ describe "Observation", ->
         value: { a: 1, b: 'c' }
       """
 
-    it "takes an optional stringifier to use", ->
+    it "forwards inspect options", ->
       observation = new Observation(@name, @returning({ a: 1, b: "c" }), @options)
 
-      observation.inspect(JSON.stringify).should.equal """
-        value: {"a":1,"b":"c"}
+      inspect(observation, depth: -1).should.equal """
+        value: [Object]
       """
 
     it "cleans the value using the experiment", ->

@@ -84,10 +84,10 @@ class Observation
 
   # Returns a string for logging purposes. Uses the defined cleaner for
   # returned values.
-  inspect: (stringify = inspect) ->
+  inspect: (depth, options) ->
     if @didReturn()
-      "value: #{ stringify(@_options.cleaner(@value)) }"
+      "value: #{ inspect(@_options.cleaner(@value), options) }"
     else
-      "error: [#{ @error.constructor?.name }] #{ stringify(@error.message) }"
+      "error: [#{ @error.constructor?.name }] #{ inspect(@error.message, options) }"
 
 module.exports = Observation
