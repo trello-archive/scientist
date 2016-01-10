@@ -7,3 +7,5 @@ script:
   - npm test
   - npm run lint
   - npm run hint
+  - npm run coverage-print
+  - npm run coverage-check

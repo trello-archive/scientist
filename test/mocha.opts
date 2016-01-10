@@ -3,3 +3,4 @@
 --recursive
 --require should
 --require should-sinon
+--require coffee-coverage/register-istanbul
