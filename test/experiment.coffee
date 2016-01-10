@@ -145,7 +145,7 @@ describe "Experiment", ->
       @experiment.use -> throw Error()
       @experiment.try -> throw Error()
       # This is going to throw to reproduce the effect of the use
-      try @experiment.run(@true)
+      try @experiment.run(@true) catch e
 
       eventToPromise(@experiment, 'result').should.be.fulfilled()
 

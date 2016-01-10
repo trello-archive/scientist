@@ -26,7 +26,9 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
+    "coffee-jshint": "^0.2.3",
     "coffee-script": "^1.10.0",
+    "coffeelint": "^1.14.2",
     "mocha": "^2.3.4",
     "should": "^8.0.2",
     "should-sinon": "0.0.3",
@@ -34,6 +36,8 @@
   },
   "scripts": {
     "build-npm": "rm -rf ./lib/ && coffee -b -c -o ./lib/ --no-header src/",
+    "hint": "coffee-jshint -o node src/*; coffee-jshint -o node,mocha test/*",
+    "lint": "coffeelint --file .coffeelint.json --quiet src test",
     "prepublish": "npm run build-npm",
     "test": "mocha"
   }
