@@ -8,6 +8,8 @@
 * [Errors in behaviors](#errors-in-behaviors)
 * [Asynchronous behaviors](#asynchronous-behaviors)
 * [Customizing your experiment](#customizing-your-experiment)
+* [Side effects](#side-effects)
+* [Enabling and skipping](#enabling-and-skipping)
 * [Why CoffeeScript?](#why-coffeescript)
 
 ## How it works
@@ -171,6 +173,73 @@ If you want to think about the flow of data in a pipeline, it looks like this:
    `compare()`
 5. The consumer may call `inspect()` on an observation, which applies
    `clean()`
+
+You can see a fairly full example at [examples/complex.js](examples/complex.js)
+
+## Side effects
+
+So all of these examples were simple because they were either pure functions or
+functions that produced no observable side-effects. What if we want to test
+something more complicated? We definitely cannot let our candidate function
+change the state of the world permanently, such as updating an entry in the
+database. However, we can still use science to observe functions that change the
+state of some object.
+
+```javascript
+science('user middleware', (experiment) => {
+  experiment.use(() => {
+    findUser(req);
+    return req;
+  });
+  experiment.try(() => {
+    let clone = _.clone(req);
+    findUserById(clone);
+    findUserByName(clone);
+    return clone;
+  });
+});
+```
+
+## Enabling and skipping
+
+Often you don't want to run science on every single function call. Since we're
+testing under production load and running the functionality at least twice, you
+can imagine that some parts may get out of control. Scientist provides a
+solution to let you _sample_ a test so that you can slowly ramp it up in
+production and stop when you have a comfortable amount of data. You can
+configure this with the [`Scientist#sample()`] function.
+
+[`Scientist#sample()`]: #samplefunctionstring-name-sampler
+
+```javascript
+const scienceConfig = require('./science-config.json');
+const scientist = new Scientist();
+
+scientist.sample((experimentName) => {
+  if (experimentName in scienceConfig) {
+    // Configuration maps a name to a percentage
+    return Math.random() < scienceConfig[experimentName];
+  } else {
+    // Default to not running for safety
+    return false;
+  }
+});
+```
+
+Note that the sampling function is provided the experiment name and *must* be
+synchronous.
+
+If you want to skip experiments based on more information, you can configure
+this at the experiment level with [`skipWhen()`].
+
+[`skipWhen()`]: docs/api.md#skipwhenfunction-skipper
+
+```javascript
+science('parse headers', (experiment) => {
+  experiment.skipWhen(() => 'x-internal' in headers);
+  // ...
+});
+```
 
 ### Why CoffeeScript?
 
