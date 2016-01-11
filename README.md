@@ -209,7 +209,7 @@ solution to let you _sample_ a test so that you can slowly ramp it up in
 production and stop when you have a comfortable amount of data. You can
 configure this with the [`Scientist#sample()`] function.
 
-[`Scientist#sample()`]: #samplefunctionstring-name-sampler
+[`Scientist#sample()`]: docs/api.md#samplefunctionstring-name-sampler
 
 ```javascript
 const scienceConfig = require('./science-config.json');
