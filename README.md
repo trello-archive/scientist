@@ -75,7 +75,7 @@ sumList([]);
 //   expected value: 0
 //   received value: undefined
 ```
-You can find this implemented in [examples/sum.js](examples/sum.js).
+You can find this implemented in [examples/basic.js](examples/basic.js).
 
 ## Getting started
 

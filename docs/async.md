@@ -55,7 +55,7 @@ science('file stat', (experiment) => {
 });
 ```
 
-You can find this example at [examples/fsStat.js](../examples/callbacks.js).
+You can find this example at [examples/promises.js](../examples/promises.js).
 
 ## Callbacks
 
