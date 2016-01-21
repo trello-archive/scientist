@@ -2,7 +2,7 @@
 
 ## Table of contents
 
-* [API Documentation](./docs/api)
+* [API Documentation](docs/api.md)
 * [How it works](#how-it-works)
 * [Getting started](#getting-started)
 * [Errors in behaviors](#errors-in-behaviors)
