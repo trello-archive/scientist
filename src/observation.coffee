@@ -10,7 +10,9 @@ class Observation
   constructor: (name, block, options={}) ->
     @name = name
     @_options = options
-    @startTime = options.startTime ? new Date()
+    # If we don't have a startTime, grab the current high-resolution real time
+    # which is a tuple array. See: https://nodejs.org/api/process.html#process_process_hrtime
+    @startTime = options.startTime ? process.hrtime()
 
     # Runs the block on construction
     try
@@ -18,7 +20,10 @@ class Observation
     catch error
       @error = error
 
-    @duration = Date.now() - @startTime
+    # duration is a tuple array, which has the first value as `seconds` and the second as `nanoseconds`.
+    # This is left as the tuple so that it can interpreted by whomever is processing the results
+    # Also, startTime has to remain a tuple since it is re-used with Promises or when mapping multiple experiments.
+    @duration = process.hrtime(@startTime)
 
     # Immutable
     Object.freeze(@)

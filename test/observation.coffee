@@ -37,12 +37,14 @@ describe "Observation", ->
       # Just freeze time
       time =>
         observation = new Observation(@name, @return)
-        observation.should.have.property('startTime', new Date())
+        observation.should.have.property('startTime')
+        .with.lengthOf(2)
 
     it "exposes the duration", ->
       time (tick) =>
         observation = new Observation @name, -> tick(10)
-        observation.should.have.property('duration', 10)
+        observation.should.have.property('duration')
+        .with.lengthOf(2)
 
     describe "running the block", ->
       it "exposes returned results", ->
@@ -133,7 +135,12 @@ describe "Observation", ->
         settled = observation.settle()
 
         settled.should.eventually.have
-        .property('duration', 20)
+        .property('duration')
+        .and.have.lengthOf(2)
+
+        settled.should.eventually.have
+        .property('duration')
+        .and.have.lengthOf(2)
 
      it "does not call the block again", ->
        block = sinon.spy()
