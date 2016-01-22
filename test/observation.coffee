@@ -37,14 +37,12 @@ describe "Observation", ->
       # Just freeze time
       time =>
         observation = new Observation(@name, @return)
-        observation.should.have.property('startTime')
-        .with.lengthOf(2)
+        observation.should.have.property('startTime', new Date())
 
     it "exposes the duration", ->
       time (tick) =>
         observation = new Observation @name, -> tick(10)
-        observation.should.have.property('duration')
-        .with.lengthOf(2)
+        observation.should.have.property('duration', 0)
 
     describe "running the block", ->
       it "exposes returned results", ->
@@ -128,19 +126,25 @@ describe "Observation", ->
         settled.should.eventually.have
         .property('startTime', observation.startTime)
 
+    it "preserves start tuple", ->
+      time (tick) =>
+        observation = new Observation(@name, @return, @options)
+        tick(10)
+        settled = observation.settle()
+
+        settled.should.eventually.have
+        .property('_startTuple', observation._startTuple)
+
     it "computes total duration", ->
       time (tick) =>
         observation = new Observation(@name, (-> tick(10)), @options)
         tick(10)
         settled = observation.settle()
 
+        # aboveOrEqual is here because the execution time varies
         settled.should.eventually.have
         .property('duration')
-        .and.have.lengthOf(2)
-
-        settled.should.eventually.have
-        .property('duration')
-        .and.have.lengthOf(2)
+        .which.is.aboveOrEqual(0)
 
      it "does not call the block again", ->
        block = sinon.spy()

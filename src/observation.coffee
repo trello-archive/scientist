@@ -10,9 +10,13 @@ class Observation
   constructor: (name, block, options={}) ->
     @name = name
     @_options = options
-    # If we don't have a startTime, grab the current high-resolution real time
+    @startTime = options.startTime ? new Date()
+    # If we don't have a startTuple, grab the current high-resolution real time
     # which is a tuple array. See: https://nodejs.org/api/process.html#process_process_hrtime
-    @startTime = options.startTime ? process.hrtime()
+    Object.defineProperty(this, '_startTuple', {
+      value: options._startTuple ? process.hrtime(),
+      enumberable: false
+    })
 
     # Runs the block on construction
     try
@@ -20,10 +24,14 @@ class Observation
     catch error
       @error = error
 
-    # duration is a tuple array, which has the first value as `seconds` and the second as `nanoseconds`.
-    # This is left as the tuple so that it can interpreted by whomever is processing the results
-    # Also, startTime has to remain a tuple since it is re-used with Promises or when mapping multiple experiments.
-    @duration = process.hrtime(@startTime)
+    # durationTuple is a tuple array, which has the first value as `seconds` and the second as `nanoseconds`.
+    # Duration is calculated form the tuple so that it can
+    Object.defineProperty(this, '_durationTuple', {
+      value: process.hrtime(@_startTuple),
+      enumberable: false
+    })
+    # Represent duration as an integer precise value.
+    @duration = Number((@_durationTuple[0] * 1e3 + @_durationTuple[1] * 1e-6).toFixed(0))
 
     # Immutable
     Object.freeze(@)
@@ -49,7 +57,7 @@ class Observation
       else
         -> throw inspection.reason()
     .then (block) =>
-      new Observation(@name, block, _.defaults({ @startTime }, @_options))
+      new Observation(@name, block, _.defaults({ @startTime, @_startTuple }, @_options))
 
   # Mapping an observation returns a new observation with the original value
   # fed through a mapping function. If the block was observed to have thrown,
@@ -57,7 +65,7 @@ class Observation
   map: (f) ->
     if @didReturn()
       block = _.constant(f(@value))
-      new Observation(@name, block, _.defaults({ @startTime }, @_options))
+      new Observation(@name, block, _.defaults({ @startTime, @_startTuple }, @_options))
     else
       @
 
