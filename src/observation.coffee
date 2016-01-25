@@ -6,22 +6,36 @@ Promise = require('bluebird')
 # won't do.
 inspect = require('util').inspect
 
+Measurement = require('./measurement')
+
 class Observation
+  @withMeasurement: (measure, args...) ->
+    mixin = _.create(@prototype, { measure })
+    observation = _.create(mixin)
+    @apply(observation, args)
+    return observation
+
   constructor: (name, block, options={}) ->
     @name = name
     @_options = options
+
+    # DEPRECATED: this property is not terribly useful and will be removed in
+    # 2.x.
     @startTime = options.startTime ? new Date()
 
-    # Runs the block on construction
-    try
-      @value = block()
-    catch error
-      @error = error
+    @_time = @measure =>
+      # Runs the block on construction
+      try
+        @value = block()
+      catch error
+        @error = error
 
-    @duration = Date.now() - @startTime
+    @duration = @_time.elapsed
 
     # Immutable
     Object.freeze(@)
+
+  measure: Measurement.benchmark
 
   # The evaluation of the observation "replays" the effect of the block and
   # either returns the value or throws the error.
@@ -44,7 +58,8 @@ class Observation
       else
         -> throw inspection.reason()
     .then (block) =>
-      new Observation(@name, block, _.defaults({ @startTime }, @_options))
+      Observation.withMeasurement(@_time.remeasure.bind(@_time), @name, block,
+        _.defaults({ @startTime }, @_options))
 
   # Mapping an observation returns a new observation with the original value
   # fed through a mapping function. If the block was observed to have thrown,
@@ -52,7 +67,8 @@ class Observation
   map: (f) ->
     if @didReturn()
       block = _.constant(f(@value))
-      new Observation(@name, block, _.defaults({ @startTime }, @_options))
+      Observation.withMeasurement(@_time.preserve.bind(@_time), @name, block,
+        _.defaults({ @startTime }, @_options))
     else
       @
 
