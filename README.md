@@ -134,7 +134,7 @@ the control function threw, but *after* testing the other functions and readying
 the logging. The criteria for matching errors is based on the constructor and
 message.
 
-You can find this full example at [examples/errors.js](examples/error.js).
+You can find this full example at [examples/errors.js](examples/errors.js).
 
 ## Asynchronous behaviors
 
