@@ -2,10 +2,13 @@ class Stopwatch
   constructor: -> @reset()
 
   reset: ->
-    @_start = new Date()
+    @_start = process.hrtime()
 
   time: ->
-    Date.now() - @_start
+    @_hrToMs(process.hrtime(@_start))
+
+  _hrToMs: ([seconds, nanoseconds]) ->
+    Math.round(seconds * 1e3 + nanoseconds / 1e6)
 
 class Measurement
   constructor: (stopwatch) ->
