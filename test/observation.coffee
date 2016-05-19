@@ -166,6 +166,15 @@ describe "Observation", ->
 
       (=> observation.map(@throw)).should.throw(@error)
 
+    it "does not change the run duration", ->
+      observation = new Observation(@name, @return, @options)
+      duration = observation.duration
+
+      time (tick) =>
+        mapped = observation.map -> tick(1000)
+
+        mapped.duration.should.equal(duration)
+
   describe "::didReturn()", ->
     it "returns true if the block returned", ->
       observation = new Observation(@name, @return)

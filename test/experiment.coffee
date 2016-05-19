@@ -5,6 +5,8 @@ sinon = require('sinon')
 Experiment = require('../src/experiment')
 Result = require('../src/result')
 
+time = require('./helpers/time')
+
 eventToPromise = (emitter, event) ->
   new Promise (resolve, reject) ->
     emitter.once event, (args...) ->
@@ -171,6 +173,18 @@ describe "Experiment", ->
       .spread (result) =>
         result.control.value.should.eql([1])
         result.candidates[0].error.should.eql(1)
+
+    it "emits observations with timing independent of order", ->
+      time (tick) =>
+        @experiment.use -> tick(1000)
+        @experiment.try -> tick(1000)
+        @experiment.map(_.identity)
+        @experiment.run(@true)
+
+        eventToPromise(@experiment, 'result')
+      .spread (result) =>
+        result.control.duration.should.equal(1000)
+        result.candidates[0].duration.should.equal(1000)
 
   describe "event: error", ->
     beforeEach ->
