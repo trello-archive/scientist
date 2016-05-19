@@ -10,3 +10,4 @@ script:
   - npm run hint
   - npm run coverage-print
   - npm run coverage-check
+  - npm run coveralls
