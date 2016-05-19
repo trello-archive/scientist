@@ -1,5 +1,8 @@
 # Scientist
 
+[![Build Status](https://travis-ci.org/trello/scientist.svg?branch=master)](https://travis-ci.org/trello/scientist)
+[![Coverage Status](https://coveralls.io/repos/github/trello/scientist/badge.svg?branch=master)](https://coveralls.io/github/trello/scientist)
+
 ## Table of contents
 
 * [API Documentation](docs/api.md)
