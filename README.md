@@ -1,5 +1,6 @@
 # Scientist
 
+[![npm](https://img.shields.io/npm/v/scientist.svg)](https://www.npmjs.com/package/scientist)
 [![Build Status](https://travis-ci.org/trello/scientist.svg?branch=master)](https://travis-ci.org/trello/scientist)
 [![Coverage Status](https://coveralls.io/repos/github/trello/scientist/badge.svg?branch=master)](https://coveralls.io/github/trello/scientist)
 
