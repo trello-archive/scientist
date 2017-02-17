@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.1 (2017/02/17)
+
+* Deploy to fix npm readme bug
+
 ## v1.1.0 (2016/05/19)
 
 * Feature: Use high-resolution timing for observations (#8)
