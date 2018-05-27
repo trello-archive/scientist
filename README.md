@@ -95,7 +95,7 @@ The recommended usage is to create a file specific to your application and
 export the `science` method bound to a fully set-up `Scientist` instance.
 
 ```javascript
-const Scientist = require('./index');
+const Scientist = require('scientist');
 
 const scientist = new Scientist();
 
